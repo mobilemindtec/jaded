@@ -192,18 +192,19 @@ main(List args, SendPort replyTo) {
   RenderAsync renderAsync = ([Map locals = const {}]){
     ReceivePort rPort = new ReceivePort();
     var isolate = Isolate.spawnUri(new Uri.file(absolutePath), [locals], rPort.sendPort);
-
-    isolate.catchError((_){
-      //print("isolate error: ${err}");
-      completer.completeError;
-    });
     
     var completer = new Completer();
+    
+    isolate.catchError((err){
+      print("isolate error: ${err}");
+      completer.completeError;
+    });   
 
     //Call generated code to get the results of render()
     rPort.first.then((html){
       completer.complete(html);
-    }, onError: (_) {
+    }, onError: (err) {
+      print("isolate port receive error: ${err}");
       completer.completeError;
     });
 
