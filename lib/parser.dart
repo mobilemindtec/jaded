@@ -242,8 +242,11 @@ class Parser {
     var path = resolvePath(expect('extends').val.trim(), 'extends');
     if ('.jade' != path.substring(path.length-5)) path += '.jade';
 
-    var str = new File(path).readAsStringSync();
-    var parser = createParser(str, filename:path, basedir:basedir, colons:colons);
+    var basedirCheck = basedir.startsWith(".") ? basedir.substring(2, basedir.length) : basedir;
+    var fullpath = path.contains(basedirCheck) ? path : "${basedirCheck}/${path}";
+
+    var str = new File(fullpath).readAsStringSync();
+    var parser = createParser(str, filename:fullpath, basedir:basedir, colons:colons);
 
     parser.blocks = blocks;
     parser.contexts = contexts;
