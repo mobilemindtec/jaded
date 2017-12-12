@@ -297,8 +297,11 @@ class Parser {
   Node parseInclude(){
     var path = resolvePath(expect('include').val.trim(), 'include');
 
+    var basedirCheck = basedir.startsWith(".") ? basedir.substring(2, basedir.length) : basedir;
+    var fullpath = path.contains(basedirCheck) ? path : "${basedirCheck}/${path}";
+
     // non-jade
-    var str = new File(path).readAsStringSync();
+    var str = new File(fullpath).readAsStringSync();
     if ('.jade' != path.substring(path.length - 5, path.length)) {
       str = str.replaceAll(new RegExp(r"\r"), '');
       var ext = extname(path).substring(1);
