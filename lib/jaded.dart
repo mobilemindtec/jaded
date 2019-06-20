@@ -309,7 +309,7 @@ Future<String> renderFile(String path, {
   }
 }
 
-String renderFiles(String basedir, Iterable<File> files, {templatesMapName:"JADE_TEMPLATES"}){
+String renderFiles(String basedir, Iterable<FileSystemEntity> files, {templatesMapName:"JADE_TEMPLATES"}){
   if (!_isVarExpr(templatesMapName))
     throw new ArgumentError("'$templatesMapName' is not a valid variable name");
 
@@ -327,8 +327,8 @@ String renderFiles(String basedir, Iterable<File> files, {templatesMapName:"JADE
     ..writeln("import 'package:jaded/runtime.dart';")
     ..writeln("import 'package:jaded/runtime.dart' as jade;")
     ..writeln("Map<String,Function> $templatesMapName = {");
-  files.forEach((File x){
-    var str = x.readAsStringSync();
+  files.forEach((FileSystemEntity x){
+    var str = new File(x.path).readAsStringSync();
     var fnBody = compileBody(str, filename:x.path, basedir:basedir);
     var pathWebStyle = x.path.replaceAll('\\','/');
     sb.write("""
