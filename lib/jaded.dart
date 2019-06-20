@@ -155,7 +155,7 @@ String compileBody(str, {
     return fnBody;
 
   return """
-jade.debug = [new Debug(lineno: 1, filename: ${filename != null ? CONV.JSON.encode(filename) : "null"})];
+jade.debug = [new Debug(lineno: 1, filename: ${filename != null ? CONV.json.encode(filename) : "null"})];
 try {
 $fnBody
 } catch (err) {
@@ -171,6 +171,7 @@ RenderAsync runCompiledDartInIsolate(String fn) {
   var isolateWrapper =
   """
 import 'dart:isolate';
+import 'dart:convert';
 import 'package:jaded/runtime.dart';
 import 'package:jaded/runtime.dart' as jade;
 
@@ -179,7 +180,7 @@ render(Map locals) {
 }
 
 main(List args, SendPort replyTo) {
-  var html = render(args.first);
+  var html = render(json.decode(args.first));
     replyTo.send(html.toString());
 }
 """;
@@ -191,9 +192,9 @@ main(List args, SendPort replyTo) {
   //Re-read back generated file inside an isolate
   RenderAsync renderAsync = ([Map locals = const {}]){
     ReceivePort rPort = new ReceivePort();
-    var isolate = Isolate.spawnUri(new Uri.file(absolutePath), [locals], rPort.sendPort);
+    var isolate = Isolate.spawnUri(new Uri.file(absolutePath), [CONV.json.encode(locals)], rPort.sendPort);
 
-    var completer = new Completer();
+    var completer = new Completer<String>();
 
     isolate.catchError((err){
       print("isolate error: ${err}");

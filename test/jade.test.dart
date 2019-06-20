@@ -1,4 +1,4 @@
-import "package:unittest/unittest.dart";
+import "package:test/test.dart";
 import "dart:io";
 import "package:jaded/jaded.dart";
 import "package:jaded/jaded.dart" as jade;

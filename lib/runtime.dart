@@ -14,7 +14,7 @@ class Debug {
   Debug({this.lineno, this.filename});
 }
 
-nulls(val) => val != null && val != '';
+var nulls = (val) => val != null && val != '';
 
 joinClasses(val) =>
   val is List ? val.map(joinClasses).where(nulls).join(' ') : val;
@@ -24,6 +24,14 @@ merge(Map a, Map b, [escaped]) {
   var bc = b['class'];
 
   if (ac != null || bc != null) {
+
+
+    // bug fix list types error conversion
+    if(ac is List){
+      a['class'] = ac = List()..addAll(ac);
+    }
+
+
     if (ac == null) ac = [];
     if (bc == null) bc = [];
     if (ac is! List) ac = [ac];
@@ -45,7 +53,7 @@ String attrs(Map obj, [Map escaped]){
   bool terse = obj['terse'];
 
   obj.remove('terse');
-  List<String> keys = obj.keys.toList();
+  List keys = obj.keys.toList();
   int len = keys.length;
 
   if (len > 0) {
@@ -62,7 +70,7 @@ String attrs(Map obj, [Map escaped]){
             buf.add('$key="$key"');
         }
       } else if (0 == key.indexOf('data') && val is! String) {
-        buf.add("$key='${CONV.JSON.encode(val)}'");
+        buf.add("$key='${CONV.json.encode(val)}'");
       } else if ('class' == key) {
         if ((val = escape(joinClasses(val))) != null) {
           if (val != "")
@@ -98,15 +106,15 @@ rethrows(err, filename, lineno){
   if (filename == null || filename == "undefined") throw err;
 //  if (typeof window != 'undefined') throw err;
 
-  var context = 3;
+  var x = 3;
   String str = new File(filename).readAsStringSync();
   List<String> lines = str.split('\n');
-  int start = Math.max(lineno - context, 0);
-  int end = Math.min(lines.length, lineno + context);
+  int start = Math.max(lineno - x, 0);
+  int end = Math.min(lines.length, lineno + x);
 
   // Error context
   int i = 0;
-  context = lines.sublist(start, end).map((String line){
+  var context = lines.sublist(start, end).map((String line){
     var curr = i++ + start + 1;
     return (curr == lineno ? '  > ' : '    ')
       + "$curr"
