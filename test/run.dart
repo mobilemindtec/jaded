@@ -1,4 +1,4 @@
-import "package:test/test.dart";
+import "package:unittest/unittest.dart";
 import "dart:io";
 import "dart:convert" as CONV;
 import "package:jaded/jaded.dart";
@@ -12,7 +12,7 @@ main(){
     'include-filter-stylus.jade',
   ];
 
-  var cases = new Directory('test/cases').listSync()
+  var cases = new Directory('cases').listSync()
     .map((FileSystemEntity fse) => fse.path)
     .where((file) => file.contains('.jade')
       && !missingFilters.any((x) => file.endsWith(x)))
@@ -33,7 +33,7 @@ main(){
         var str = new File(path).readAsStringSync();
         var html = new File('$file.html').readAsStringSync()
           .trim().replaceAll(new RegExp(r"\r"), '');
-        RenderAsync fn = jade.compile(str, filename: path, pretty:true, basedir:'');
+        RenderAsync fn = jade.compile(str, filename: path, pretty:true, basedir:'cases');
 
         fn({ 'title': 'Jade' }).then(expectAsync1((actual){
 
@@ -42,7 +42,7 @@ main(){
             html = html.replaceAll(new RegExp(r'\n'), '');
           }
 
-          expect(CONV.json.encode(actual.trim()), equals(CONV.json.encode(html)));
+          expect(CONV.JSON.encode(actual.trim()), equals(CONV.JSON.encode(html)));
         }));
       });
     });

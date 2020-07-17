@@ -1,7 +1,6 @@
 part of jaded;
 
 abstract class Node {
-  String val;
   bool yield = false;
   bool textOnly = false;
   Block block;
@@ -75,7 +74,7 @@ class Block extends Node {
   clone(){
     var clone = new Block();
     for (var node in nodes){
-      clone.add(node.clone());
+      clone.push(node.clone());
     }
     return clone;
   }
@@ -216,7 +215,7 @@ class Mixin extends Tag {
   String args;
   Block block;
   bool call = false;
-  //List attrs = [];
+  List attrs = [];
 
   Mixin([this.name, this.args, this.block, this.call]);
 }
@@ -225,7 +224,7 @@ class Mixin extends Tag {
 class Tag extends Attrs {
   String name;
   Block block;
-  //List attrs = [];
+  List attrs = [];
   bool selfClosing = false;
   Code code;
 
@@ -238,15 +237,15 @@ class Tag extends Attrs {
     return new Tag(this.name, this.block.clone())
       ..line = line
       ..attrs = attrs
-      ..textOnly = this.textOnly;
+      ..textOnly = textOnly;
   }
 
-  bool get isInline => inlineTags.contains(this.name);
+  get isInline => inlineTags.contains(this.name);
 
   bool canInline(){
     var nodes = block.nodes;
 
-    bool isInline(Node node){
+    isInline(Node node){
       // Recurse if the node is a block
       if (node.isBlock)
         return (node as Block).nodes.every(isInline);

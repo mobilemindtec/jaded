@@ -27,7 +27,7 @@ class Parser {
       .._root = root;
 
   List<String> undeclaredVarReferences(){
-    var ret = <String>[];
+    var ret = [];
     for (var ref in lexer.varReferences){
       if (!lexer.varDeclarations.contains(ref))
         ret.add(ref);
@@ -268,19 +268,19 @@ class Parser {
     Block prev = or(blocks[name], () => new Block());
     if (prev.mode == 'replace') return blocks[name] = prev;
 
-    List allNodes = prev.prepended.map((t) => t as Node).toList()
+    var allNodes = prev.prepended.toList()
       ..addAll(_block.nodes)
-      ..addAll(prev.appended.map((t) => t as Node));
+      ..addAll(prev.appended);
 
     switch (mode) {
       case 'append':
         prev.appended = prev.parser == this ?
                         (prev.appended.toList()..addAll(_block.nodes)) :
-                        (_block.nodes.toList()..addAll(prev.appended.map((t) => t as Node)));
+                        (_block.nodes.toList()..addAll(prev.appended));
         break;
       case 'prepend':
         prev.prepended = prev.parser == this ?
-                         (_block.nodes.toList()..addAll(prev.prepended.map((t) => t as Node))) :
+                         (_block.nodes.toList()..addAll(prev.prepended)) :
                          (prev.prepended.toList()..addAll(_block.nodes));
         break;
     }
@@ -310,9 +310,7 @@ class Parser {
     }
 
     var parser = createParser(str, filename:path, basedir:basedir, colons:colons);
-
-    Map map = merge({}, blocks);
-    parser.blocks = map.map((k, v) => MapEntry(k as String, v as Block));
+    parser.blocks = merge({}, blocks);
 
     parser.mixins = mixins;
 

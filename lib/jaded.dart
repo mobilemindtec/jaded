@@ -155,7 +155,7 @@ String compileBody(str, {
     return fnBody;
 
   return """
-jade.debug = [new Debug(lineno: 1, filename: ${filename != null ? CONV.json.encode(filename) : "null"})];
+jade.debug = [new Debug(lineno: 1, filename: ${filename != null ? CONV.JSON.encode(filename) : "null"})];
 try {
 $fnBody
 } catch (err) {
@@ -171,7 +171,6 @@ RenderAsync runCompiledDartInIsolate(String fn) {
   var isolateWrapper =
   """
 import 'dart:isolate';
-import 'dart:convert';
 import 'package:jaded/runtime.dart';
 import 'package:jaded/runtime.dart' as jade;
 
@@ -180,7 +179,7 @@ render(Map locals) {
 }
 
 main(List args, SendPort replyTo) {
-  var html = render(json.decode(args.first));
+  var html = render(args.first);
     replyTo.send(html.toString());
 }
 """;
@@ -192,9 +191,9 @@ main(List args, SendPort replyTo) {
   //Re-read back generated file inside an isolate
   RenderAsync renderAsync = ([Map locals = const {}]){
     ReceivePort rPort = new ReceivePort();
-    var isolate = Isolate.spawnUri(new Uri.file(absolutePath), [CONV.json.encode(locals)], rPort.sendPort);
+    var isolate = Isolate.spawnUri(new Uri.file(absolutePath), [locals], rPort.sendPort);
 
-    var completer = new Completer<String>();
+    var completer = new Completer();
 
     isolate.catchError((err){
       print("isolate error: ${err}");
@@ -309,7 +308,7 @@ Future<String> renderFile(String path, {
   }
 }
 
-String renderFiles(String basedir, Iterable<FileSystemEntity> files, {templatesMapName:"JADE_TEMPLATES"}){
+String renderFiles(String basedir, Iterable<File> files, {templatesMapName:"JADE_TEMPLATES"}){
   if (!_isVarExpr(templatesMapName))
     throw new ArgumentError("'$templatesMapName' is not a valid variable name");
 
@@ -327,8 +326,8 @@ String renderFiles(String basedir, Iterable<FileSystemEntity> files, {templatesM
     ..writeln("import 'package:jaded/runtime.dart';")
     ..writeln("import 'package:jaded/runtime.dart' as jade;")
     ..writeln("Map<String,Function> $templatesMapName = {");
-  files.forEach((FileSystemEntity x){
-    var str = new File(x.path).readAsStringSync();
+  files.forEach((File x){
+    var str = x.readAsStringSync();
     var fnBody = compileBody(str, filename:x.path, basedir:basedir);
     var pathWebStyle = x.path.replaceAll('\\','/');
     sb.write("""

@@ -96,7 +96,7 @@ class Compiler {
       }
     }
 
-    str = CONV.json.encode(str);
+    str = CONV.JSON.encode(str);
     str = str.substring(1, str.length - 1);
 
     if (lastBufferedIdx == buf.length) {
@@ -137,7 +137,7 @@ class Compiler {
 
   void visit(Node node){
     if (debug) {
-      var filename = node.filename != null ? CONV.json.encode(node.filename) : 'jade.debug[0].filename';
+      var filename = node.filename != null ? CONV.JSON.encode(node.filename) : 'jade.debug[0].filename';
       buf.add('jade.debug.insert(0, new Debug(lineno: ${node.line}, filename: $filename));');
     }
 
@@ -403,7 +403,7 @@ class Compiler {
       + '// iterate ' + each.obj + '\n'
       + ';((){\n'
       + '  var $obj = ${each.obj};\n'
-      + '  if ($obj is List) {\n');
+      + '  if ($obj is Iterable) {\n');
 
     if (each.alternative != null) {
       buf.add('  if ($obj != null && !$obj.isEmpty) {');
@@ -448,7 +448,7 @@ class Compiler {
     if (val.inherits) {
       bufferExpression("jade.attrs(jade.merge({ ${val.buf} }, attributes), jade.merge(${val.escaped}, escaped, true))");
     } else if (val.constant) {
-      buffer(jade.attrs(fakeEval("{ ${val.buf} }"), CONV.json.decode(val.escaped)));
+      buffer(jade.attrs(fakeEval("{ ${val.buf} }"), CONV.JSON.decode(val.escaped)));
 
 //      throw new ParseError("eval not supported");
 //      eval('var evalBuf={' + val.buf + '};');
@@ -493,7 +493,7 @@ class Compiler {
     fakeJsonStr = sb.toString();
 
     try {
-      return CONV.json.decode(fakeJsonStr);
+      return CONV.JSON.decode(fakeJsonStr);
     } catch(e){
       print("Err parsing fakeEval: $fakeJsonStr / $str: $e");
       return {};
@@ -526,12 +526,12 @@ class Compiler {
 
     return new AttrsTuple()
       ..buf = buf.join(', ')
-      ..escaped = CONV.json.encode(escaped)
+      ..escaped = CONV.JSON.encode(escaped)
       ..inherits = inherits
       ..constant = constant;
   }
 
-  bool isConstant(val){
+  isConstant(val){
     // Check strings/literals
     if (new RegExp(r'^ *("([^"\\]*(\\.[^"\\]*)*)"'
         + r"|'([^'\\]*(\\.[^'\\]*)*)'|true|false|null) *$", caseSensitive:false)
@@ -539,7 +539,7 @@ class Compiler {
     return true;
 
     // Check numbers
-    if (!double.parse(val, (x) => double.nan).isNaN)
+    if (!double.parse(val, (x) => double.NAN).isNaN)
       return true;
 
     // Check arrays
